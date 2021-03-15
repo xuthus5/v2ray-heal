@@ -1,0 +1,6 @@
+project_name: V2ray_Heal
+port: :21310
+https:
+  enable: true
+  crt_path: ./crt.crt
+  key_path: ./key.key

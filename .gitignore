@@ -1,0 +1,5 @@
+.idea
+*.crt
+*.key
+config.yaml
+config.db
