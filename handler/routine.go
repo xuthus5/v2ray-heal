@@ -56,7 +56,9 @@ const (
 
 var (
 	routinePool *ants.Pool
-	lock        sync.RWMutex
+	lockDB      sync.RWMutex
+	lockMap     sync.RWMutex
+	vmessPool   map[string]bool
 	tickerTime  = time.Duration(config.GetConfig().TimeInterval) * time.Minute
 )
 
@@ -141,7 +143,7 @@ func updateSubConfig(node *driver.PubConfig, version int64) func() {
 		var chosenNode = validNodeList[0]
 		log.Printf("get [%s] best node time: %v ms\n", node.Remark, int64(chosenNode.Duration)/1e6)
 		// 比较 获取原来的数据
-		lock.Lock()
+		lockDB.Lock()
 		subConfig, err := driver.GetSubConfig()
 		if err != nil {
 			log.Printf("get [%s] err: %v", node.Remark, err)
@@ -166,7 +168,18 @@ func updateSubConfig(node *driver.PubConfig, version int64) func() {
 			log.Printf("[%s] valid node empty\n", node.Remark)
 		} else {
 			for _, info := range validList {
-				validContent += info.Link.String() + "\n"
+				// 检查map 去重
+				var link = info.Link.String()
+				if len(vmessPool) == 0 {
+					vmessPool = make(map[string]bool)
+				}
+				if _, ok := vmessPool[link]; !ok {
+					validContent += link + "\n"
+
+					lockMap.Lock()
+					vmessPool[link] = true
+					lockMap.Unlock()
+				}
 			}
 			// 是否需要追加 否则直接更新
 			if subConfig.Version == version && subConfig.LastVersion == version {
@@ -186,12 +199,13 @@ func updateSubConfig(node *driver.PubConfig, version int64) func() {
 			log.Printf("UpdateSubConfig [%s] err: %v", node.Remark, err)
 			return
 		}
-		lock.Unlock()
+		lockDB.Unlock()
 	}
 }
 
 func wrap(version int64) func() {
 	log.Printf("refresh at: %v", time.Now().Format("2006-01-02 15:04:05"))
+	vmessPool = make(map[string]bool)
 	return func() {
 		// 获取订阅节点列表
 		configList, err := driver.GetPubConfigList()
