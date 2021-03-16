@@ -81,21 +81,21 @@ func ParseSingle(vmessURL string) (*LinkV2, error) {
 		return &LinkV2{}, err
 	}
 
-	lk := &LinkV2{}
-	lk.Version = json.RawMessage("2")
-	err = json.Unmarshal([]byte(j), lk)
+	node := &LinkV2{}
+	node.Version = json.RawMessage("2")
+	err = json.Unmarshal([]byte(j), node)
 	if err != nil {
 		log.Printf("json.Unmarshal err: %+v\ncontent: %+v", err, j)
-		return lk, err
+		return node, err
 	}
-	return lk, nil
+	return node, nil
 }
 
 func Parse(s string) ([]*LinkV2, error) {
 	var vl []*LinkV2
 	urlList := split.Split(s)
 	for i := 0; i < len(urlList); i++ {
-		lk, err := ParseSingle(urlList[i])
+		node, err := ParseSingle(urlList[i])
 		if err != nil {
 			if err == ErrWrongProtocol {
 				continue
@@ -103,31 +103,31 @@ func Parse(s string) ([]*LinkV2, error) {
 				return nil, err
 			}
 		}
-		vl = append(vl, lk)
+		vl = append(vl, node)
 	}
 	return vl, nil
 }
 
-func (lk *LinkV2) Config() map[string]string {
+func (node *LinkV2) Config() map[string]string {
 	var config = make(map[string]string)
 	// set node settings
-	config["address"] = lk.Add
-	config["serverPort"] = fmt.Sprintf("%v", lk.Port)
-	config["uuid"] = lk.ID
-	config["aid"] = fmt.Sprintf("%v", lk.Aid)
-	config["streamSecurity"] = lk.TLS
-	config["network"] = lk.Net
-	config["tls"] = lk.TLS
-	config["type"] = lk.Type
-	config["host"] = lk.Host
-	config["type"] = lk.Type
-	config["path"] = lk.Path
+	config["address"] = node.Add
+	config["serverPort"] = fmt.Sprintf("%v", node.Port)
+	config["uuid"] = node.ID
+	config["aid"] = fmt.Sprintf("%v", node.Aid)
+	config["streamSecurity"] = node.TLS
+	config["network"] = node.Net
+	config["tls"] = node.TLS
+	config["type"] = node.Type
+	config["host"] = node.Host
+	config["type"] = node.Type
+	config["path"] = node.Path
 	config["version"] = "2"
 	return config
 }
 
-func (lk *LinkV2) String() string {
-	b, _ := json.Marshal(lk)
+func (node *LinkV2) String() string {
+	b, _ := json.Marshal(node)
 	return "vmess://" + base64.Encode(string(b))
 }
 
@@ -154,36 +154,36 @@ func redact(str string) string {
 	return string(result)
 }
 
-func (lk *LinkV2) Safe() string {
+func (node *LinkV2) Safe() string {
 	safeLinkV2 := &LinkV2{
-		Ps:         lk.Ps,
-		Add:        redact(lk.Add),
-		Port:       lk.Port,
-		ID:         redact(lk.ID),
-		Aid:        lk.Aid,
-		Net:        lk.Net,
-		Type:       lk.Type,
-		Host:       redact(lk.Host),
-		Path:       redact(lk.Path),
-		Version:    lk.Version,
-		VerifyCert: lk.VerifyCert,
-		Remark:     lk.Ps,
-		TLS:        lk.TLS,
+		Ps:         node.Ps,
+		Add:        redact(node.Add),
+		Port:       node.Port,
+		ID:         redact(node.ID),
+		Aid:        node.Aid,
+		Net:        node.Net,
+		Type:       node.Type,
+		Host:       redact(node.Host),
+		Path:       redact(node.Path),
+		Version:    node.Version,
+		VerifyCert: node.VerifyCert,
+		Remark:     node.Ps,
+		TLS:        node.TLS,
 	}
 	b, _ := json.Marshal(safeLinkV2)
 	return string(b)
 }
 
-func (lk *LinkV2) DestAddr() string {
-	return lk.Add
+func (node *LinkV2) DestAddr() string {
+	return node.Add
 }
 
-func (lk *LinkV2) Description() string {
-	return lk.Ps
+func (node *LinkV2) Description() string {
+	return node.Ps
 }
 
-func (lk *LinkV2) Ping(round int, dst string) (ping.Status, error) {
-	server, err := startV2Ray(lk, false, false)
+func (node *LinkV2) Ping(round int, dst string) (ping.Status, error) {
+	server, err := startV2Ray(node, false, false)
 	if err != nil {
 		return ping.Status{}, err
 	}
@@ -312,13 +312,13 @@ func Vmess2Outbound(v *LinkV2, usemux bool) (*core.OutboundHandlerConfig, error)
 	return out.Build()
 }
 
-func startV2Ray(lk *LinkV2, verbose, usemux bool) (*core.Instance, error) {
+func startV2Ray(node *LinkV2, verbose, usemux bool) (*core.Instance, error) {
 	loglevel := commlog.Severity_Error
 	if verbose {
 		loglevel = commlog.Severity_Debug
 	}
 
-	ob, err := Vmess2Outbound(lk, usemux)
+	ob, err := Vmess2Outbound(node, usemux)
 	if err != nil {
 		return nil, err
 	}

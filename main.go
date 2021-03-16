@@ -5,8 +5,8 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
-	"psubv2ray/config"
-	"psubv2ray/handler"
+	"v2ray-heal/config"
+	"v2ray-heal/handler"
 )
 
 var confer = config.GetConfig()

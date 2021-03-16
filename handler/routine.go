@@ -7,10 +7,11 @@ import (
 	"github.com/remeh/sizedwaitgroup"
 	"iochen.com/v2gen/v2/common/mean"
 	"log"
-	"psubv2ray/driver"
 	"sort"
 	"sync"
 	"time"
+	"v2ray-heal/config"
+	"v2ray-heal/driver"
 
 	"iochen.com/v2gen/v2"
 	"iochen.com/v2gen/v2/common/base64"
@@ -49,14 +50,14 @@ func (pf *PingInfoList) Swap(i, j int) {
 }
 
 const (
-	pingCount  = 3
-	pingDest   = "https://cloudflare.com/cdn-cgi/trace"
-	tickerTime = time.Minute * 30
+	pingCount = 3
+	pingDest  = "https://cloudflare.com/cdn-cgi/trace"
 )
 
 var (
 	routinePool *ants.Pool
 	lock        sync.RWMutex
+	tickerTime  = time.Duration(config.GetConfig().TimeInterval) * time.Minute
 )
 
 func init() {
@@ -164,8 +165,8 @@ func updateSubConfig(node *driver.PubConfig, version int64) func() {
 		if len(validList) == 0 {
 			log.Printf("[%s] valid node empty\n", node.Remark)
 		} else {
-			for _, config := range validList {
-				validContent += config.Link.String() + "\n"
+			for _, info := range validList {
+				validContent += info.Link.String() + "\n"
 			}
 			// 是否需要追加 否则直接更新
 			if subConfig.Version == version && subConfig.LastVersion == version {
@@ -199,8 +200,8 @@ func wrap(version int64) func() {
 			return
 		}
 
-		for _, config := range configList {
-			err = routinePool.Submit(updateSubConfig(config, version))
+		for _, pubConfig := range configList {
+			err = routinePool.Submit(updateSubConfig(pubConfig, version))
 			if err != nil {
 				log.Printf("submit routine but get err: %v", err)
 				continue
