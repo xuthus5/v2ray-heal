@@ -6,6 +6,8 @@
 
 过程: 网上获取订阅地址 --> 通过pub接口推送到程序中 --> 通过sub接口订阅可用节点
 
+**注:** 需要说明的是，即使服务端返回了订阅节点列表，由于测试的网络环境不同，他依然有可能在你的机器上无法连通。
+
 ## 如何使用
 
 ### 配置文件
@@ -53,3 +55,5 @@ curl --location --request POST 'https://x.xuthus.cc/pub' \
 在v2ray客户端订阅配置中填写 `ip:port/sub` 即可获取可用订阅链接。
 
 其中，你可以通过指定 `best` 参数来获取最优节点，即 `ip:port/sub?best=true`
+
+如果你配置了token访问，请在获取订阅时指定 `token` 参数，即 `ip:port/sub?token=xxxxx`
