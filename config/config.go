@@ -8,10 +8,16 @@ import (
 
 // Environments 项目主要配置项[子项] 如果需要扩展 在这里添加结构来实现yaml的解析
 type Environments struct {
-	ProjectName  string         `yaml:"project_name"` //项目名称
-	Port         string         `yaml:"port"`         //服务运行的 :port
-	TimeInterval int64          `yaml:"refresh_time_interval"`
-	HTTPS        `yaml:"https"` //https配置
+	ProjectName  string   `yaml:"project_name"` //项目名称
+	Port         string   `yaml:"port"`         //服务运行的 :port
+	TimeInterval int64    `yaml:"refresh_time_interval"`
+	Https        HTTPS    `yaml:"https"`     //https配置
+	Token        SubToken `yaml:"sub_token"` //订阅token配置
+}
+
+type SubToken struct {
+	Enable bool   `yaml:"enable"`
+	Token  string `yaml:"token"`
 }
 
 type HTTPS struct {

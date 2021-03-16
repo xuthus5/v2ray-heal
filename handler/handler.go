@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"v2ray-heal/config"
 	"v2ray-heal/driver"
 )
 
@@ -29,6 +30,16 @@ func ResponseWrite(w http.ResponseWriter, response []byte, code int) {
 }
 
 func Sub(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	conf := config.GetConfig()
+
+	if conf.Token.Enable {
+		var token = r.URL.Query().Get("token")
+		if token != conf.Token.Token {
+			ResponseWrite(w, []byte("token error"), http.StatusOK)
+			return
+		}
+	}
+
 	var isBest = r.URL.Query().Get("best")
 	var content string
 

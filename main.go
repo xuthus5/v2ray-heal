@@ -32,8 +32,8 @@ func main() {
 
 	log.Printf("%s start...", confer.ProjectName)
 
-	if confer.Enable {
-		log.Fatal(http.ListenAndServeTLS(confer.Port, confer.CrtFile, confer.KeyFile, router))
+	if confer.Https.Enable {
+		log.Fatal(http.ListenAndServeTLS(confer.Port, confer.Https.CrtFile, confer.Https.KeyFile, router))
 	} else {
 		log.Fatal(http.ListenAndServe(confer.Port, router))
 	}

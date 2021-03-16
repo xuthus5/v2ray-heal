@@ -225,6 +225,10 @@ func wrap(version int64) func() {
 }
 
 func startPub() {
+	// default 15 minute
+	if tickerTime <= 0 {
+		tickerTime = time.Minute * 15
+	}
 	var ticker = time.NewTicker(tickerTime)
 	defer ticker.Stop()
 	for {
