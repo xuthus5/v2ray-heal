@@ -24,6 +24,22 @@ go build -o vh .
 ./vh
 ```
 
+如果你期望使用docker进行工作，这完全有可能。
+```shell
+docker run -d \
+	--network=host \
+	-p 2131:2131 \
+	--name v2ray-heal \
+	-e "time_interval=30" \ 
+	-e "token=abcdefg" \
+	xuthus5/vh
+```
+
+**docker环境变量:**
+
+`time_interval`: 检测时间间隔 默认不填写时 15分钟检测一次
+`token`: 订阅节点token 默认不填写则无
+
 ### 维护订阅(pub)
 
 首先你需要手动导入从网络中获得的订阅地址，提交到 `ip:port/pub` 中，`v2ray-heal` 会按照配置文件中指定的频率定时刷新检测可用节点。
