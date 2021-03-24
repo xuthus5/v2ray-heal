@@ -229,7 +229,7 @@ func wrap(version int64) func() {
 
 		for _, pubConfig := range configList {
 			if version-pubConfig.LastUpdated < conf.TimeInterval*60 {
-				log.Printf("frequent submission, s: %v", version-pubConfig.LastUpdated)
+				log.Printf("frequent [%s] submission, s: %v", pubConfig.Remark, version-pubConfig.LastUpdated)
 				continue
 			}
 
