@@ -7,6 +7,7 @@ import (
 	"github.com/remeh/sizedwaitgroup"
 	"iochen.com/v2gen/v2/common/mean"
 	"log"
+	"math/rand"
 	"sort"
 	"sync"
 	"time"
@@ -102,6 +103,10 @@ func updateSubConfig(node *driver.PubConfig, version int64) func() {
 			wg.Add()
 			go func(i int) {
 				defer func() {
+					if node.CanBan {
+						// 防批量ping导致的ban
+						time.Sleep(time.Duration(5 + rand.Int31n(5)))
+					}
 					wg.Done()
 				}()
 				pingInfoList[i] = &PingInfo{

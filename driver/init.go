@@ -20,6 +20,7 @@ type PubConfig struct {
 	Id          int64  `json:"id"`
 	Remark      string `json:"remark,omitempty" xorm:"varchar(256)"`
 	SubLink     string `json:"sub_link,omitempty" xorm:"varchar(256)"`
+	CanBan      bool   `json:"can_ban"`
 	LastUpdated int64  `json:"last_updated"`
 }
 
