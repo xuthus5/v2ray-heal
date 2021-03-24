@@ -61,6 +61,16 @@ func Sub(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 func Pub(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	var pubConfig driver.PubConfig
 
+	conf := config.GetConfig()
+
+	if conf.Token.Enable {
+		var token = r.URL.Query().Get("token")
+		if token != conf.Token.Token {
+			ResponseWrite(w, []byte("token error"), http.StatusOK)
+			return
+		}
+	}
+
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Printf("read body err: %+v", err)
