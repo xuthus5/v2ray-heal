@@ -1,9 +1,9 @@
 # 项目名称
-project_name: V2ray_Heal
+project_name: vh
 # 端口
 port: :21310
 # 刷新时间间隔 单位:分钟
-refresh_time_interval: 15
+refresh_time_interval: 60
 # token 配置 开启后sub接口必须添加token参数才可以访问
 sub_token:
   enable: false

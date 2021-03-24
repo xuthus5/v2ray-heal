@@ -78,6 +78,13 @@ func init() {
 func updateSubConfig(node *driver.PubConfig, version int64) func() {
 	return func() {
 		log.Printf("start [%s] sub link: %s\n", node.Remark, node.SubLink)
+		defer func() {
+			node.LastUpdated = time.Now().Unix()
+			if err := driver.UpdatePubConfig(node); err != nil {
+				log.Printf("update [%s] last_updated error: %v", node.Remark, err)
+				return
+			}
+		}()
 		linkList, err := getLinkList(node.SubLink)
 		if err != nil {
 			log.Printf("get [%s] link node request err: unreachable\n", node.Remark)
@@ -206,6 +213,7 @@ func updateSubConfig(node *driver.PubConfig, version int64) func() {
 func wrap(version int64) func() {
 	log.Printf("refresh at: %v", time.Now().Format("2006-01-02 15:04:05"))
 	vmessPool = make(map[string]bool)
+	conf := config.GetConfig()
 	return func() {
 		// 获取订阅节点列表
 		configList, err := driver.GetPubConfigList()
@@ -215,6 +223,11 @@ func wrap(version int64) func() {
 		}
 
 		for _, pubConfig := range configList {
+			if version-pubConfig.LastUpdated < conf.TimeInterval*60 {
+				log.Printf("frequent submission, s: %v", version-pubConfig.LastUpdated)
+				continue
+			}
+
 			err = routinePool.Submit(updateSubConfig(pubConfig, version))
 			if err != nil {
 				log.Printf("submit routine but get err: %v", err)

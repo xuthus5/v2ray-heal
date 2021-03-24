@@ -17,8 +17,10 @@ type SubConfig struct {
 
 // PubConfig 需要操作的数据
 type PubConfig struct {
-	Remark  string `json:"remark,omitempty" xorm:"varchar(256)"`
-	SubLink string `json:"sub_link,omitempty" xorm:"varchar(256)"`
+	Id          int64  `json:"id"`
+	Remark      string `json:"remark,omitempty" xorm:"varchar(256)"`
+	SubLink     string `json:"sub_link,omitempty" xorm:"varchar(256)"`
+	LastUpdated int64  `json:"last_updated"`
 }
 
 var engine *xorm.Engine

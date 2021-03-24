@@ -37,8 +37,9 @@ docker run -d \
 
 **docker环境变量:**
 
-`time_interval`: 检测时间间隔 默认不填写时 15分钟检测一次
-`token`: 订阅节点token 默认不填写则无
+`time_interval`: 检测时间间隔 默认不填写时 60分钟检测一次
+
+`token`: 订阅节点是否需要token(请提防订阅地址泄露) 默认不填
 
 ### 维护订阅(pub)
 
@@ -73,3 +74,7 @@ curl --location --request POST 'https://x.xuthus.cc/pub' \
 其中，你可以通过指定 `best` 参数来获取最优节点，即 `ip:port/sub?best=true`
 
 如果你配置了token访问，请在获取订阅时指定 `token` 参数，即 `ip:port/sub?token=xxxxx`
+
+### 下期更新
+
+> 订阅防ban (由于批量ping操作, 部分付费节点出现被运营商ban的情况)

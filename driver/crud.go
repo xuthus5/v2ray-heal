@@ -44,3 +44,11 @@ func GetPubConfigList() ([]*PubConfig, error) {
 	}
 	return list, nil
 }
+
+func UpdatePubConfig(u *PubConfig) error {
+	_, err := engine.Update(u)
+	if err != nil {
+		return err
+	}
+	return nil
+}
