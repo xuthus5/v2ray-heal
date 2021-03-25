@@ -79,7 +79,7 @@ func init() {
 func updateSubConfig(node *driver.PubConfig, version int64) func() {
 	return func() {
 		log.Printf("start [%s] sub link: %s\n", node.Remark, node.SubLink)
-		defer func() {
+		go func() {
 			node.LastUpdated = time.Now().Unix()
 			if err := driver.UpdatePubConfig(node); err != nil {
 				log.Printf("update [%s] last_updated error: %v", node.Remark, err)
@@ -98,14 +98,20 @@ func updateSubConfig(node *driver.PubConfig, version int64) func() {
 
 		// 检查延迟
 		pingInfoList := make(PingInfoList, len(linkList))
-		wg := sizedwaitgroup.New(5)
+		var wg sizedwaitgroup.SizedWaitGroup
+		if node.CanBan {
+			wg = sizedwaitgroup.New(6)
+		} else {
+			wg = sizedwaitgroup.New(3)
+		}
+
 		for i := range linkList {
 			wg.Add()
 			go func(i int) {
 				defer func() {
 					if node.CanBan {
 						// 防批量ping导致的ban
-						time.Sleep(time.Duration(5 + rand.Int31n(5)))
+						time.Sleep(time.Duration(60 + rand.Int31n(5)*60))
 					}
 					wg.Done()
 				}()
@@ -229,7 +235,12 @@ func wrap(version int64) func() {
 
 		for _, pubConfig := range configList {
 			if version-pubConfig.LastUpdated < conf.TimeInterval*60 {
-				log.Printf("frequent [%s] submission, s: %v", pubConfig.Remark, version-pubConfig.LastUpdated)
+				log.Printf("frequent [%s] submission, second: %v", pubConfig.Remark, version-pubConfig.LastUpdated)
+				continue
+			}
+
+			if pubConfig.CanBan && (version-pubConfig.LastUpdated) < conf.TimeInterval*60*2 {
+				log.Printf("frequent can_ban [%s] submission, second: %v", pubConfig.Remark, version-pubConfig.LastUpdated)
 				continue
 			}
 
